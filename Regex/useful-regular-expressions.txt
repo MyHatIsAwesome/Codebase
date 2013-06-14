@@ -1,0 +1,13 @@
+-------------------------------
+			URL
+-------------------------------
+matches:
+	- optional http:// or https://
+	- 1 or more subdomains
+	- optional path
+	- optional querystring
+	- optional hash containing any typical english keyboard symbol
+-------------------------------
+ protocol  subdomains  tld       path                   querystring                                        hash
+ |_____________|_______|__|_________________|___________________________________|___________________________________________________________|
+^(https?:\/\/)?(\w+\.)+\w+(\/?[\w\._\-\/]*)?(\?[\w\.\^\$\?\*\+\(\)&!"'£%=;:,]*)?(#[\w\.\/\\\^\|\?#\*\+!"'~@`¬¦;:\$£€%&=><\{\}\(\)\[\],\-]*)?$

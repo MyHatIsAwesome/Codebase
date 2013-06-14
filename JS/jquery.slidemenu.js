@@ -1,12 +1,12 @@
 /*
  * Sliding menu
  * ============
- * version: 0.5 beta
+ * version: 0.6 beta
  * author: Kostas Kapenekakis
  * depencencies: jQuery, fun, magic;
- * 
- * Initialize like this: 
- * 
+ *
+ * Initialize like this:
+ *
  $("#menu").slidemenu({
 	content: $(".container"),
 	button: $("button")
@@ -24,32 +24,37 @@ $.extend($.slidemenu, {
 
 	defaults: {
 		content: $([]),
+		content_selector: "",
 		button: $([]),
+		button_selector: "",
+		overlay: $([]),
+		overlay_selector: "",
 		position: 'left',
 		stime: 200,
 		ssize: 250,
 		open: false,
-		close: true
+		close: true,
+		is_open: false,
+		animating:false,
+		onClose:function(){},
+		onOpen:function(){}
 	}, // end defaults
 
 	setDefaults: function( settings ) {
 		$.extend( $.slidemenu.defaults, settings );
+		return this;
 	},
 
 	prototype: {
 
 		init: function() {
 
-			if( typeof this.settings.content == "string" )
-				this.settings.content = $(this.settings.content);
-			if( typeof this.settings.button == "string" )
-				this.settings.button = $(this.settings.button);
-
 			// initialise
 			this.style_objects();
 			this.trigger_events();
 
-			console.log('%c slidingmenu (' + this.settings.position + ') : %c initialized ', 'background-color:#333; color:lightgrey; border-radius:3px;', 'margin-left:10px; background-color:#333; color:lightgreen; border-radius:3px;');
+			//console.log('%c slidingmenu (' + this.settings.position + ') : %c initialized ', 'background-color:#333; color:lightgrey; border-radius:3px;', 'margin-left:10px; background-color:#333; color:lightgreen; border-radius:3px;');
+			return this;
 		},
 
 		toggle_state: function(){
@@ -57,10 +62,12 @@ $.extend($.slidemenu, {
 				this.slide('open');
 			else
 				this.slide('close');
+
+			return this;
 		},
 
-		slide: function (action) {
-
+		slide: function (action, time) {
+			time = time || this.settings.stime;
 			var left = 0;
 			if( action === "open" )
 				if( this.settings.position === "left" )
@@ -69,22 +76,37 @@ $.extend($.slidemenu, {
 					left = -this.settings.ssize;
 
 			if(left !== 0) {
-				$('#dark-map-overlay').fadeIn('fast');
+				this.settings.overlay.fadeIn('fast');
 				this.menu.removeClass('closed');
 			}
 
-			this.settings.content.animate({'left':left}, this.settings.stime, 'swing', (function(){
-				if (left === 0){
-					$('#dark-map-overlay').fadeOut('fast');
-					$('.slidemenu-sidebar').addClass('closed');
+			this.settings.animating = true;
+			this.settings.content.animate({'left':left}, time, 'swing', (function(){
+				this.settings.animating = false;
+
+				if (left === 0)
+				{
+					if( this.settings.overlay.is(":visible") )
+						this.settings.overlay.fadeOut('fast');
+
+					this.menu.addClass('closed');
+					this.settings.is_open = false;
+					this.settings.onClose(this);
 				}
+				else
+				{
+					this.settings.is_open = true;
+					this.settings.onOpen(this);
+				}
+
 				return false;
 			}).bind(this));
+			return this;
 		},
 
-		slideopen: function(){ this.slide('open'); },
+		slideopen: function( time ){ this.slide('open', time); return this; },
 
-		slideclose: function(){ this.slide('close'); },
+		slideclose: function( time ){ this.slide('close', time); return this; },
 
 		style_objects: function(){
 			this.settings.content.parents().addClass('full-height');
@@ -98,19 +120,30 @@ $.extend($.slidemenu, {
 				this.menu.addClass('left-side-bar');
 			else
 				this.menu.addClass('right-side-bar');
+			return this;
+		},
+
+		rebind_events: function(){
+			if( this.settings.button_selector ) this.settings.button = $(this.settings.button_selector);
+			if( this.settings.content_selector ) this.settings.content = $(this.settings.content_selector);
+			if( this.settings.overlay_selector ) this.settings.overlay = $(this.settings.overlay_selector);
+
+			this.settings.button.off("click").on("click", (function(e){
+				this.toggle_state();
+				return false;
+			}).bind(this) );
+
+			this.settings.overlay.on("click", (function(e){
+				if ( !this.settings.animating && this.settings.is_open )
+					this.slideclose();
+				return false;
+			}).bind(this) );
+			return this;
 		},
 
 		trigger_events: function(){
 			this.slideclose();
-
-			this.settings.button.click( (function(e){
-				this.toggle_state();
-			}).bind(this) );
-
-			this.settings.content.click( (function(e){
-				if ( !this.menu.hasClass('closed') && e.target.id !== this.settings.button.attr('id') )
-					this.slideclose();
-			}).bind(this) );
+			this.rebind_events();
 
 			if (this.settings.close === true || this.settings.open === true){
 				//console.log('touch enabled');
@@ -167,6 +200,7 @@ $.extend($.slidemenu, {
 					touch_begins = '';
 				};
 			}
+			return this;
 
 		}
 	} // end prototype
@@ -183,7 +217,7 @@ $.fn.slidemenu = function( options ) {
 
 	// check if this element already has a slide menu setup
 	var slidemenu = $.data( this[0], "slidemenu" );
-	if( slidemenu ) 
+	if( slidemenu )
 		return slidemenu;
 
 	slidemenu = new $.slidemenu( options, this[0] );
