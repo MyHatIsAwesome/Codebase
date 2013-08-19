@@ -1,0 +1,7 @@
+ZoomBox:
+  ☐ Allow zoom box to appear under and above the thumbnail
+  ☐ Allow user to set a preferred position for the zoom box
+  ☐ Allow user to override the level of zoom
+  ☐ Allow zoom override per thumbnail with a data attribute
+
+FastTap:
