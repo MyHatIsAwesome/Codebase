@@ -34,6 +34,8 @@ $.extend($.ZoomBox, {
 		// If the container does not already exist in the page, one will be created and appended to <body>
 		container_class: "zoom-container",
 
+		image_class: "zoom-image",
+
 		// The class that the thumbnail tracking rectangle has
 		track_class: "zoom-track",
 
@@ -42,8 +44,13 @@ $.extend($.ZoomBox, {
 		loading_class: "loading",
 
 		// the attribute on your thumbnails that points to the high resolution image
-		// you want to use in the zoom. Eg: <img src='thumb.jpg' data-zoom='highres.jpg'/>
-		src_attribute: "data-zoom",
+		// you want to use in the zoom. Eg: <img src='thumb.jpg' data-highres='highres.jpg'/>
+		src_attribute: "data-highres",
+
+		// the attribute on your thumbnails that you use to override the scale of an image
+		// the scale is proportional to the size of the thumbnail, eg. data-scale="2" will
+		// show a zoomed image twice the size of the thumbnail
+		scale_attribute: "data-scale",
 
 		// time in milliseconds between hovering over a thumbnail and the zoom box appearing
 		delay: 500,
@@ -104,20 +111,10 @@ $.extend($.ZoomBox, {
 					.addClass(this.settings.container_class)
 					.hide()
 					.appendTo("body")
-
-				// indicate that the zoom container should be positioned automatically
-				if( this.settings.fixed_container === null )
-					this.settings.fixed_container = false
-			}
-			else
-			{
-
-				// indicate that the zoom container has fixed position
-				if( this.settings.fixed_container === null )
-					this.settings.fixed_container = true
 			}
 
-			this.settings.fixed_container
+			if( this.settings.fixed_container === null )
+				this.settings.fixed_container = this.container.length == 0
 
 			// ensure overflow is hidden on the zoom container
 			this.container.css("overflow", "hidden")
@@ -136,9 +133,12 @@ $.extend($.ZoomBox, {
 		// positions the container panel next to the thumbnail
 		position_container:function(){
 			// ensure the container is the correct size in case it has been changed
+			// also don't let the container be larger than the image it contains
+			var full_w = this.full_image.width || Infinity
+			var full_h = this.full_image.height || Infinity
 			this.container.css({
-				"width": this.settings.container_width+"px",
-				"height": this.settings.container_height+"px",
+				"width": Math.min(this.settings.container_width, full_w)+"px",
+				"height": Math.min(this.settings.container_height, full_h)+"px",
 				"z-index": parseInt(this.settings.zindex) || 0
 			})
 
@@ -319,6 +319,7 @@ $.extend($.ZoomBox, {
 							"left":0,
 							"top":0
 						})
+						.hide()
 						.appendTo($(this))
 
 				// Add Event Handlers to the thumbnails
@@ -359,25 +360,37 @@ $.extend($.ZoomBox, {
 								"max-width":"initial"
 							})
 							.fadeTo(0, 0)
-							.one("load", function(){
+							.one("load", function(e){
 								if( zoom.full_image != this )
 									return
 
+								// set the width + height of the image
+								var thumb_w = zoom.thumbnail.width(),
+									thumb_h = zoom.thumbnail.height(),
+									scale = parseFloat( zoom.thumbnail.attr(zoom.settings.scale_attribute) ) || this.width/thumb_w
+								$(this).attr({
+									"width": Math.floor( thumb_w * scale ),
+									"height": Math.floor( thumb_h * scale )
+								})
+
+								// reposition the zoom container
+								if( !zoom.settings.fixed_container )
+									zoom.position_container()
+
+								// call zoom start callback
+								zoom.settings.on_zoom_start.call(zoom, this, zoom.container)
+
 								$(this).fadeTo(parseInt(zoom.settings.fade_in_time), 1, zoom.settings.fade_easing)
+
 								zoom.container
 									.empty()
 									.append($(this))
 									.removeClass(zoom.settings.loading_class)
+
 								zoom.position_image()
 							})
-						zoom.full_image = $img[0]
+							zoom.full_image = $img[0]
 
-						// reposition the zoom container
-						if( !zoom.settings.fixed_container )
-							zoom.position_container()
-
-						// call zoom start callback
-						zoom.settings.on_zoom_start.call(zoom, this, zoom.container)
 					}.bind(this), zoom.settings.delay) // end timeout
 
 				})
