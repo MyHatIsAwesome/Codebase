@@ -1,7 +1,10 @@
 ZoomBox:
-  ☐ Allow zoom box to appear under and above the thumbnail
-  ☐ Allow user to set a preferred position for the zoom box
+  ✔ Allow zoom box to appear under and above the thumbnail @done (13-08-19 15:14)
+  ✔ Allow user to set a preferred position for the zoom box @done (13-08-19 15:14)
+  ✔ Allow changing the settings of a zoombox after instantiation @done (13-08-19 15:48)
   ☐ Allow user to override the level of zoom
   ☐ Allow zoom override per thumbnail with a data attribute
+  ☐ Allow zoombox to display image using a css background rather than an <img> element
+  ☐ Allow mouse to enter zoom box without closing it
 
 FastTap:

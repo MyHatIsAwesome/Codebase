@@ -14,22 +14,114 @@
 					container_height: 300,
 					src_attribute: "data-highres"
 				})
+
+				var controls = [
+					{ "prop": "delay", "type": "number" },
+					{ "prop": "fade_in_time", "type": "number" },
+					{ "prop": "fade_out_time", "type": "number" },
+					{ "prop": "show_track", "type": "boolean" },
+					{ "prop": "container_width", "type": "number" },
+					{ "prop": "container_height", "type": "number" },
+					{ "prop": "container_position", "type": "select", "values": ["right", "left", "top", "bottom"] },
+					{ "prop": "keep_in_screen", "type": "boolean" },
+					{ "prop": "container_margin", "type": "number" },
+					{ "prop": "fade_easing", "type": "text" }
+				]
+
+
+
+				for( var i=0, c; c=controls[i]; i++ )
+				{
+					var control
+					var cont = $("<div/>").addClass("setting").appendTo($("#controls"))
+
+					$("<label/>")
+						.attr("for", c.prop)
+						.text(c.prop)
+						.appendTo(cont)
+
+					switch( c.type )
+					{
+						case "number":
+							control =
+							$("<input/>").attr({
+								"type": "number",
+								"value": zoom.settings[c.prop]
+							})
+							.appendTo(cont)
+							break
+
+						case "boolean":
+							control =
+							$("<input/>")
+								.attr({
+									"type": "checkbox"
+								})
+								.appendTo(cont)
+
+							if( zoom.settings[c.prop] )
+								control.attr("checked", "checked")
+							break
+
+						case "select":
+							control =
+							$("<select/>")
+								.appendTo(cont)
+
+							for( var j=0, v; v=c.values[j]; j++ )
+								$("<option/>")
+									.attr("value", v)
+									.text(v)
+									.appendTo(control)
+							break
+
+						default:
+							control = $("<input/>").attr("value", zoom.settings[c.prop]).appendTo(cont)
+					}
+
+					c.control = control
+						.attr({ id:c.prop, name:c.prop })
+						.on( "change blur", function(){
+							$("#apply").click()
+						})
+				}
+
+				$("<button/>").attr("id", "apply").text("Apply").on("click", function(){
+					for( var i=0, c; c=controls[i]; i++ )
+						if( c.type == "boolean" )
+							zoom.settings[c.prop] = c.control.is(":checked")
+						else
+							zoom.settings[c.prop] = c.control.val()
+
+					zoom.refresh()
+				}).appendTo($("#controls"))
 			})
 		</script>
 		<style>
-			.thumbnail { float:left; margin:20px; border:2px groove #888; cursor:none; }
+			.gallery { width:500px; margin: 0 auto; text-align:center; }
+			.thumbnail { margin:20px; border:2px groove #888; display:inline-block; vertical-align:top;}
 			.thumbnail img { display:block; }
 			.first { clear:left; }
 			.zoomtrack { border:1px solid #ddd; background:rgba(255,255,255,0.1); border-radius:4px; }
 			.zoombox { border:1px solid #888; box-shadow: #aaa 4px 2px 3px 0px; }
 			.caption { display:block; position:absolute; bottom:0; left:0; width:100%; text-align:center; line-height:20px; height:20px; background:rgba(0,0,0,0.5); color:#fff; font-size:16px; letter-spacing:2px; }
 			.loading { background-image: url('loading.gif'); background-position: center center; background-repeat:no-repeat; }
+			label { margin-right:10px; line-height:40px; }
+			input { line-height:30px; max-width:80px; }
+			.setting { width:250px; margin:0px 5px 20px 5px; float:left; height:40px;  }
+			.cf {*zoom: 1;}
+			.cf:before,
+			.cf:after {content: " "; display: table; clear: both;}
+			button { box-sizing:border-box; line-height:36px; padding: 0 20px;}
 		</style>
 	</head>
 
 	<body>
 		<h1>Hover over a thumbnail</h1>
-		<div class="gallery">
+		<div id="controls">
+
+		</div>
+		<div class="gallery cf">
 			<div class="thumbnail first" data-highres="cat.jpg">
 				<img src="cat_thumb.jpg"/>
 				<span class="caption">Falling Cat</span>

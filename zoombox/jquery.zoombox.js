@@ -7,9 +7,6 @@
 	Author: J.A.Westwood
 
 */
-
-
-
 (function($){
 
 $.ZoomBox = function(options){
@@ -64,6 +61,21 @@ $.extend($.ZoomBox, {
 		container_width: 300,
 		container_height: 300,
 
+		// Preferred place to position zoom container
+		// right | left | top | bottom
+		container_position: "right",
+
+		// if the preferred position does not fit the zoom container
+		// should the other directions be tried?
+		keep_in_screen: true,
+
+		// space to add between the thumbnail and the zoom container when positioning
+		// it automatically
+		container_margin: 10,
+
+		// easing function to use for fade animations
+		fade_easing: "linear",
+
 		// Determins whether or not the zoom container is automatically positioned
 		// set to true if you want the zoom box to be in a fixed position
 		// set to false to automatically position the zoom box next to the thumbnail
@@ -90,15 +102,8 @@ $.extend($.ZoomBox, {
 			{
 				this.container = $("<div />")
 					.addClass(this.settings.container_class)
-					.css({
-						"position": "absolute",
-						"display": "none",
-						"overflow": "hidden",
-						"width": this.settings.container_width+"px",
-						"height": this.settings.container_height+"px",
-						"z-index": this.settings.zindex
-					})
-				$("body").append(this.container)
+					.hide()
+					.appendTo("body")
 
 				// indicate that the zoom container should be positioned automatically
 				if( this.settings.fixed_container === null )
@@ -106,46 +111,145 @@ $.extend($.ZoomBox, {
 			}
 			else
 			{
-				this.container.css({
-					"position":"absolute",
-					"z-index":this.settings.zindex,
-					"overflow":"hidden"
-				})
 
 				// indicate that the zoom container has fixed position
 				if( this.settings.fixed_container === null )
 					this.settings.fixed_container = true
 			}
 
+			this.settings.fixed_container
+
+			// ensure overflow is hidden on the zoom container
+			this.container.css("overflow", "hidden")
+
+			// ensure fixed containers are position relative
+			// and dynamically positioned containers are position absolute
+			if( this.settings.fixed_container )
+				this.container.css("position", "relative")
+			else
+				this.container.css("position", "absolute")
+
 			this.refresh()
 			return this
 		},
 
+		// positions the container panel next to the thumbnail
 		position_container:function(){
-			// position the container panel next to the thumbnail
+			// ensure the container is the correct size in case it has been changed
+			this.container.css({
+				"width": this.settings.container_width+"px",
+				"height": this.settings.container_height+"px",
+				"z-index": parseInt(this.settings.zindex) || 0
+			})
+
 			var cont_w = this.container.width(),
 				cont_h = this.container.height(),
 				thumb = this.thumbnail.offset() || {left:0,top:0},
 				thumb_w = this.thumbnail.width(),
 				thumb_h = this.thumbnail.height(),
+				scroll_x = $(document).scrollLeft(),
 				scroll_y = $(document).scrollTop(),
-				screen_h = $(window).height()
+				screen_w = $(window).width(),
+				screen_h = $(window).height(),
+				margin = parseInt( this.settings.container_margin ) || 0,
+				direction = this.settings.container_position
 
-			// position right of the thumbnail with 10px padding, center vertically
-			var left = thumb.left + thumb_w + 10
-			var top = thumb.top + thumb_h/2 - cont_h/2
+			// Try preferred position first
+			var xy = calculate_position( direction )
 
-			// clamp the top value so it stays within the screen
-			top = Math.min( Math.max(top, scroll_y+10), scroll_y+screen_h-cont_h-10 )
+			// if the zoombox is set to try other directions when the box cannot fit
+			if( this.settings.keep_in_screen &&
+				is_out_of_bounds( direction, xy[0], xy[1] ) )
+			{
+				// get the opposite direction of the preferred one
+				// this should be attempted first
+				var opposite = "left"
+				switch( direction )
+				{
+					case "left":   opposite = "right"; break
+					case "top":    opposite = "bottom"; break
+					case "bottom": opposite = "top";
+				}
 
-			// if going off the right of the screen, position left of the thumbnail
-			if( left + cont_w > $(window).width() )
-				left = thumb.left - cont_w - 10
+				// create an array of each new direction to attempt
+				// not including the preferred one already tried
+				var directions = [opposite]
+				if( opposite === "left" || opposite === "right" )
+					directions.push("top", "bottom")
+				else
+					directions.push("left", "right")
 
+				// try each direction until one fits
+				for( var i=0, d; d=directions[i]; i++ )
+				{
+					var pos = calculate_position(d)
+					if( ! is_out_of_bounds(d, pos[0], pos[1]) )
+					{
+						direction = d
+						xy = pos
+						break
+					}
+				}
+			}
+
+			// clamp the chosen position so it is not off the edge of the screen
+			if( this.settings.keep_in_screen )
+				xy = clamp( xy[0], xy[1] )
+
+			// Finally, apply the position to the zoom container
 			this.container.css({
-				left:left,
-				top:top
+				"left":xy[0],
+				"top":xy[1]
 			})
+
+			function calculate_position( d ){
+				switch( d )
+				{
+					case "left":
+						return [thumb.left - cont_w - margin,
+								thumb.top + thumb_h/2 - cont_h/2]
+					case "top":
+						return [thumb.left + thumb_w/2 - cont_w/2,
+								thumb.top - cont_h - margin]
+					case "bottom":
+						return [thumb.left + thumb_w/2 - cont_w/2,
+								thumb.top + thumb_h + margin]
+					default: // right
+						return [thumb.left + thumb_w + margin,
+								thumb.top + thumb_h/2 - cont_h/2]
+				}
+			}
+
+			function clamp( x, y )
+			{
+				var left, top
+				switch( direction )
+				{
+					case "top":
+					case "bottom":
+						left = Math.clamp(x, scroll_x+margin, scroll_x+screen_w-margin-cont_w)
+						break
+
+					default:
+						top = Math.clamp(y, scroll_y+margin, scroll_y+screen_h-margin-cont_h)
+				}
+
+				switch( direction )
+				{
+					case "left":   return [Math.max( x, scroll_x + margin ), top]
+					case "top":    return [left, Math.max(y, scroll_y + margin)]
+					case "bottom": return [left, Math.min(y, scroll_y+screen_h-margin-cont_h)]
+					default:       return [Math.min( x, scroll_x+screen_w-margin-cont_w), top]
+				}
+			}
+
+			function is_out_of_bounds( direction, x, y )
+			{
+				if( direction ==="top" || direction === "bottom" )
+					return y < scroll_y || y + cont_h > screen_h + scroll_y
+				else
+					return x < scroll_x || x + cont_w > screen_w + scroll_x
+			}
 		},
 
 		position_image:function(){
@@ -153,7 +257,7 @@ $.extend($.ZoomBox, {
 			if( ! $full.length )
 				return
 
-				// get the widths and heights of the thumbnail, full image and zoom container
+			// get the widths and heights of the thumbnail, full image and zoom container
 			var	thumb_w = this.thumbnail.width(),
 				thumb_h = this.thumbnail.height(),
 				full_w = $full.width(),
@@ -175,17 +279,18 @@ $.extend($.ZoomBox, {
 
 			// reposition the full image within the zoom container to mirror the track rectangle
 			$full.css({
-				left: -(track_x / thumb_w) * full_w,
-				top: -(track_y / thumb_h) * full_h
+				"left": -(track_x / thumb_w) * full_w,
+				"top": -(track_y / thumb_h) * full_h
 			})
 
+			// display the track rectangle over the thumbnail
 			if( this.settings.show_track )
 			{
 				this.track.css({
-					left: track_x,
-					top: track_y,
-					width: track_w,
-					height: track_h
+					"left": track_x,
+					"top": track_y,
+					"width": track_w,
+					"height": track_h
 				})
 			}
 		},
@@ -193,6 +298,12 @@ $.extend($.ZoomBox, {
 		refresh:function(){
 			var zoom = this
 
+
+			// ensure the container can contain absolute positioned children
+			if( ! this.container.css("position").match(/absolute|fixed|relative/) )
+				this.container.css("position", "relative")
+
+			// refresh the thumbnails
 			$("."+zoom.settings.thumb_class).each(function(){
 
 				// ensure the thumbnail can contain absolute positioned children
@@ -210,7 +321,7 @@ $.extend($.ZoomBox, {
 						})
 						.appendTo($(this))
 
-				// mouse enter
+				// Add Event Handlers to the thumbnails
 				$(this)
 				.off("mouseenter.zoom")
 				.off("mouseleave.zoom")
@@ -228,17 +339,21 @@ $.extend($.ZoomBox, {
 						zoom.container
 							.empty()
 							.addClass(zoom.settings.loading_class)
-							.fadeIn({duration:zoom.settings.fade_in_time, queue:false})
+							.fadeIn({
+								duration: parseInt(zoom.settings.fade_in_time),
+								easing: zoom.settings.fade_easing
+							})
 
 						// show the tracking rectangle
 						if( zoom.settings.show_track )
-							zoom.track.fadeIn({duration: zoom.settings.fade_in_time, queue:false})
+							zoom.track.fadeIn({
+								duration: parseInt(zoom.settings.fade_in_time),
+								easing: zoom.settings.fade_easing
+							})
 
 						// create full sized image
 						var $img = $("<img />")
-						zoom.full_image = $img[0]
-
-						$img.attr("src", full_src)
+							.attr("src", full_src)
 							.css({
 								"position":"absolute",
 								"max-width":"initial"
@@ -248,14 +363,16 @@ $.extend($.ZoomBox, {
 								if( zoom.full_image != this )
 									return
 
-								$(this).fadeTo(zoom.settings.fade_in_time, 1)
+								$(this).fadeTo(parseInt(zoom.settings.fade_in_time), 1, zoom.settings.fade_easing)
 								zoom.container
 									.empty()
 									.append($(this))
 									.removeClass(zoom.settings.loading_class)
 								zoom.position_image()
 							})
+						zoom.full_image = $img[0]
 
+						// reposition the zoom container
 						if( !zoom.settings.fixed_container )
 							zoom.position_container()
 
@@ -266,8 +383,10 @@ $.extend($.ZoomBox, {
 				})
 				.on( "mouseleave.zoom", function(){
 					clearTimeout(zoom.hover_timeout)
-					zoom.container.add(zoom.track).fadeOut({duration: zoom.settings.fade_out_time, queue:false})
-
+					zoom.container.add(zoom.track).fadeOut({
+						duration: parseInt(zoom.settings.fade_out_time),
+						easing: zoom.settings.fade_easing
+					})
 
 					// call zoom start callback
 					zoom.settings.on_zoom_end.call(zoom, this, zoom.container)
@@ -281,14 +400,13 @@ $.extend($.ZoomBox, {
 
 					zoom.position_image()
 				})
-				// end mousemove
-			})
-			// end each
+			})// end each
 
 			return this
 		} // end function refresh
 
 	} // end prototype
+
 })// end $.extend
 
 })(jQuery)
