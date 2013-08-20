@@ -342,7 +342,6 @@ $.extend($.ZoomBox, {
 		refresh:function(){
 			var zoom = this
 
-
 			// refresh the thumbnails
 			$("."+zoom.settings.thumb_class).each(function(){
 
