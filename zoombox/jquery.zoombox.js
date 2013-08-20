@@ -132,8 +132,8 @@ $.extend($.ZoomBox, {
 			// initial styles
 			this.$box
 				.css({
-					"width": this.settings.box_width+"px",
-					"height": this.settings.box_height+"px",
+					"min-width": this.settings.box_width+"px",
+					"min-height": this.settings.box_height+"px",
 					"z-index": this.settings.zindex,
 					"overflow": "hidden"
 				})
@@ -142,10 +142,11 @@ $.extend($.ZoomBox, {
 
 			// ensure fixed containers are position relative
 			// and dynamically positioned containers are position absolute
-			if( this.settings.fixed )
-				this.$box.css("position", "relative")
-			else
-				this.$box.css("position", "absolute")
+			if( ! this.$box.css("position").match(/absolute|fixed|relative/) )
+				if( this.settings.fixed )
+					this.$box.css("position", "relative")
+				else
+					this.$box.css("position", "absolute")
 
 			// append dynamically positioned containers to the body
 			if( this.settings.fixed === false )
@@ -179,8 +180,8 @@ $.extend($.ZoomBox, {
 				var full_w = this.image.width || Infinity
 				var full_h = this.image.height || Infinity
 				this.$box.css({
-					"width": Math.min(this.settings.box_width, full_w)+"px",
-					"height": Math.min(this.settings.box_height, full_h)+"px",
+					"min-width": Math.min(this.settings.box_width, full_w)+"px",
+					"min-height": Math.min(this.settings.box_height, full_h)+"px",
 					"z-index": parseInt(this.settings.zindex) || 0
 				})
 			}
@@ -341,9 +342,6 @@ $.extend($.ZoomBox, {
 		refresh:function(){
 			var zoom = this
 
-			// ensure the container can contain absolute positioned children
-			if( ! this.$box.css("position").match(/absolute|fixed|relative/) )
-				this.$box.css("position", "relative")
 
 			// refresh the thumbnails
 			$("."+zoom.settings.thumb_class).each(function(){

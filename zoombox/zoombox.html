@@ -11,8 +11,8 @@
 					box_class: "zoombox",
 					image_container_class: "imagebox",
 					track_class: "zoomtrack",
-					container_width:  400,
-					container_height: 300,
+					box_width:  400,
+					box_height: 300,
 					src_attribute: "data-highres"
 				})
 
@@ -21,11 +21,11 @@
 					{ "prop": "fade_in_time", "type": "number" },
 					{ "prop": "fade_out_time", "type": "number" },
 					{ "prop": "show_track", "type": "boolean" },
-					{ "prop": "container_width", "type": "number" },
-					{ "prop": "container_height", "type": "number" },
-					{ "prop": "container_position", "type": "select", "values": ["right", "left", "top", "bottom"] },
+					{ "prop": "box_width", "type": "number" },
+					{ "prop": "box_height", "type": "number" },
+					{ "prop": "box_position", "type": "select", "values": ["right", "left", "top", "bottom"] },
 					{ "prop": "keep_in_screen", "type": "boolean" },
-					{ "prop": "container_margin", "type": "number" },
+					{ "prop": "box_margin", "type": "number" },
 					{ "prop": "fade_easing", "type": "text" }
 				]
 
@@ -98,24 +98,7 @@
 				}).appendTo($("#controls"))
 			})
 		</script>
-		<style>
-			.gallery { width:500px; margin: 0 auto; text-align:center; }
-			.thumbnail { margin:20px; border:2px groove #888; display:inline-block; vertical-align:top;}
-			.thumbnail img { display:block; }
-			.first { clear:left; }
-			.zoomtrack { border:1px solid #ddd; background:rgba(255,255,255,0.1); border-radius:4px; }
-			.zoombox { border:1px solid #888; box-shadow: #aaa 4px 2px 3px 0px; }
-			.caption { display:block; position:absolute; bottom:0; left:0; width:100%; text-align:center; line-height:20px; height:20px; background:rgba(0,0,0,0.5); color:#fff; font-size:16px; letter-spacing:2px; z-index:100;}
-			.top { bottom:auto; top:0; }
-			.loading { background-image: url('loading.gif'); background-position: center center; background-repeat:no-repeat; }
-			label { margin-right:10px; line-height:40px; }
-			input { line-height:30px; max-width:80px; }
-			.setting { width:250px; margin:0px 5px 20px 5px; float:left; height:40px;  }
-			.cf {*zoom: 1;}
-			.cf:before,
-			.cf:after {content: " "; display: table; clear: both;}
-			button { box-sizing:border-box; line-height:36px; padding: 0 20px;}
-		</style>
+		<link rel="stylesheet" href="style.css"/>
 	</head>
 
 	<body>

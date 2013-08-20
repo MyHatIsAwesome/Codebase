@@ -1,0 +1,58 @@
+<html>
+	<head>
+		<title>ZoomBox</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script src="jquery.zoombox.js"></script>
+		<script>
+		$(document).ready(function(){
+			window.zoom = new $.ZoomBox({
+				thumb_class: "thumbnail",
+				box_class: "zoombox",
+				fixed:true,
+				src_attribute: "data-highres"
+
+			})
+		})
+		</script>
+		<link rel="stylesheet" href="style.css"/>
+		<style>
+			.gallery { float:left; width:500px; }
+			.details { position:relative; float:left; width:500px; }
+			.zoombox { width:100%; height:100%; background:#fff; position:absolute; top:0; }
+		</style>
+	</head>
+	<body>
+		<h1>Fixed position Box</h1>
+		<div class="gallery cf">
+			<div class="thumbnail first" data-highres="cat.jpg">
+				<img src="cat_thumb.jpg"/>
+				<span class="caption">Falling Cat</span>
+			</div>
+			<div class="thumbnail" data-highres="joe_and_austin.jpg">
+				<img src="joe_and_austin_thumb.jpg"/>
+				<span class="caption">Joe and Austin</span>
+			</div>
+			<div class="thumbnail first" data-highres="swag_peacock.jpg">
+				<img src="swag_peacock_thumb.jpg"/>
+				<span class="caption">Swag Peacock</span>
+			</div>
+			<div class="thumbnail" data-highres="morag.jpg">
+				<img src="morag_thumb.jpg"/>
+				<span class="caption">Morag the Cat</span>
+			</div>
+		</div>
+
+		<div class="details">
+			<h2>Description</h2>
+			<p>Lorem ipsum dolor sit amet, consectetur <strong>adipisicing elit</strong>. Voluptatem, exercitationem, suscipit, distinctio, qui sapiente aspernatur molestiae non corporis magni sit sequi iusto debitis <em>delectus doloremque explicabo blanditiis repellat!</em> Incidunt, aperiam!</p>
+			<hr/>
+			<button>Buy</button> <button>Cancel</button>
+			<hr/>
+			<small>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi, eaque, error, impedit in vitae debitis at odit sit iste <del>fugit aspernatur distinctio</del> quaerat nobis non nostrum quam dolor ipsa commodi.</small>
+
+			<div class="zoombox">
+
+			</div>
+		</div>
+	</body>
+</html>
