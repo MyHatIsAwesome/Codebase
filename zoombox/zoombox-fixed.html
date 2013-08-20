@@ -2,58 +2,91 @@
 	<head>
 		<title>ZoomBox</title>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-		<script src="jquery.zoombox.js"></script>
+		<script src="http://prismjs.com/prism.js"></script>
+		<script src="js/jquery.zoombox.js"></script>
 		<script>
 		$(document).ready(function(){
-			window.zoom = new $.ZoomBox({
+			$.ZoomBox({
 				thumb_class: "thumbnail",
 				box_class: "zoombox",
-				fixed:true,
-				src_attribute: "data-highres",
-				track_class: "zoomtrack"
-
+				fixed:true
 			})
 		})
 		</script>
-		<link rel="stylesheet" href="style.css"/>
+		<link rel="stylesheet" href="http://prismjs.com/prism-okaidia.css">
+		<link rel="stylesheet" href="css/jquery.zoombox.css">
 		<style>
-			.gallery { float:left; width:500px; height:550px; }
-			.details { position:relative; float:left; width:500px; height:550px;}
+			.thumbnail { display:inline-block; margin:10px; }
 			.zoombox { width:100%; height:100%; background:#fff; position:absolute; top:0; }
+			.gallery { float:left; width:500px; height:550px; }
+			.details { position:relative; float:left; width:500px; height:550px; }
 		</style>
 	</head>
 	<body>
 		<h1>Fixed position Box</h1>
 		<div class="gallery cf">
-			<div class="thumbnail first" data-highres="cat.jpg">
-				<img src="cat_thumb.jpg"/>
-				<span class="caption">Falling Cat</span>
+			<div class="thumbnail first" data-image="img/cat.jpg">
+				<img src="img/cat_thumb.jpg"/>
 			</div>
-			<div class="thumbnail" data-highres="joe_and_austin.jpg">
-				<img src="joe_and_austin_thumb.jpg"/>
-				<span class="caption">Joe and Austin</span>
+			<div class="thumbnail" data-image="img/joe_and_austin.jpg">
+				<img src="img/joe_and_austin_thumb.jpg"/>
 			</div>
-			<div class="thumbnail first" data-highres="swag_peacock.jpg">
-				<img src="swag_peacock_thumb.jpg"/>
-				<span class="caption">Swag Peacock</span>
+			<div class="thumbnail first" data-image="img/swag_peacock.jpg">
+				<img src="img/swag_peacock_thumb.jpg"/>
 			</div>
-			<div class="thumbnail" data-highres="morag.jpg">
-				<img src="morag_thumb.jpg"/>
-				<span class="caption">Morag the Cat</span>
+			<div class="thumbnail" data-image="img/morag.jpg">
+				<img src="img/morag_thumb.jpg"/>
 			</div>
 		</div>
 
 		<div class="details">
 			<h2>Description</h2>
-			<p>Lorem ipsum dolor sit amet, consectetur <strong>adipisicing elit</strong>. Voluptatem, exercitationem, suscipit, distinctio, qui sapiente aspernatur molestiae non corporis magni sit sequi iusto debitis <em>delectus doloremque explicabo blanditiis repellat!</em> Incidunt, aperiam!</p>
-			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur, autem, velit, ipsum numquam possimus quis perferendis non in architecto sit alias magni dolor error porro delectus sint aperiam maxime eos!</p>
-			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, dolores, quod, delectus, quas minus adipisci quis illo aliquam laborum iusto quisquam rem at aperiam voluptatem earum fugiat architecto eveniet tenetur!</p>
-			<hr/>
-			<button>Buy</button> <button>Cancel</button>
-			<hr/>
-			<small>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi, eaque, error, impedit in vitae debitis at odit sit iste <del>fugit aspernatur distinctio</del> quaerat nobis non nostrum quam dolor ipsa commodi.</small>
+			<p>Lorem ipsum dolor sit amet, consectetur <strong>adipisicing elit</strong>. Voluptatem, exercitationem, suscipit, distinctio, qui sapiente aspernatur molestiae non corporis magni sit sequi iusto debitis <em>delectus doloremque explicabo blanditiis repellat!</em> Incidunt, aperiam!<br/><br/>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur, autem, velit, ipsum numquam possimus quis perferendis non in architecto sit alias magni dolor error porro delectus sint aperiam maxime eos!<br/><br/>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, dolores, quod, delectus, quas minus adipisci quis illo aliquam laborum iusto quisquam rem at aperiam voluptatem earum fugiat architecto eveniet tenetur!</p>
+			<hr/><button>Buy</button> <button>Cancel</button><hr/><small>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi, eaque, error, impedit in vitae debitis at odit sit iste <del>fugit aspernatur distinctio</del> quaerat nobis non nostrum quam dolor ipsa commodi.</small>
 
 			<div class="zoombox"></div>
+		</div>
+		<div style="clear:both;">
+
+			<h2>JS</h2>
+<pre><code class="language-javascript">$(document).ready(function(){
+	$.ZoomBox({
+		thumb_class: "thumbnail",
+		box_class: "zoombox",
+		fixed:true
+	})
+})</code></pre>
+
+			<h2>HTML</h2>
+<pre><code class="language-markup">&lt;div class="gallery cf"&gt;
+	&lt;div class="thumbnail first" data-image="img/cat.jpg"&gt;
+		&lt;img src="img/cat_thumb.jpg"/&gt;
+	&lt;/div&gt;
+	&lt;div class="thumbnail" data-image="img/joe_and_austin.jpg"&gt;
+		&lt;img src="img/joe_and_austin_thumb.jpg"/&gt;
+	&lt;/div&gt;
+	&lt;div class="thumbnail first" data-image="img/swag_peacock.jpg"&gt;
+		&lt;img src="img/swag_peacock_thumb.jpg"/&gt;
+	&lt;/div&gt;
+	&lt;div class="thumbnail" data-image="img/morag.jpg"&gt;
+		&lt;img src="img/morag_thumb.jpg"/&gt;
+	&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="details"&gt;
+	&lt;h2&gt;Description&lt;/h2&gt;
+	&lt;p&gt;Lorem ipsum dolor sit amet, consectetur &lt;strong&gt;adipisicing elit&lt;/strong&gt;. Voluptatem, exercitationem, suscipit, distinctio, qui sapiente aspernatur molestiae non corporis magni sit sequi iusto debitis &lt;em&gt;delectus doloremque explicabo blanditiis repellat!&lt;/em&gt; Incidunt, aperiam!&lt;/p&gt;&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur, autem, velit, ipsum numquam possimus quis perferendis non in architecto sit alias magni dolor error porro delectus sint aperiam maxime eos!&lt;/p&gt;&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, dolores, quod, delectus, quas minus adipisci quis illo aliquam laborum iusto quisquam rem at aperiam voluptatem earum fugiat architecto eveniet tenetur!&lt;/p&gt;
+	&lt;hr/&gt;&lt;button&gt;Buy&lt;/button&gt; &lt;button&gt;Cancel&lt;/button&gt;&lt;hr/&gt;
+	&lt;small&gt;Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi, eaque, error, impedit in vitae debitis at odit sit iste &lt;del&gt;fugit aspernatur distinctio&lt;/del&gt; quaerat nobis non nostrum quam dolor ipsa commodi.&lt;/small&gt;
+
+	&lt;div class="zoombox"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+			<h2>CSS</h2>
+<pre><code class="language-css">.thumbnail { display:inline-block; margin:10px; }
+.zoombox { width:100%; height:100%; background:#fff; position:absolute; top:0; }
+.gallery { float:left; width:500px; height:550px; }
+.details { position:relative; float:left; width:500px; height:550px; }</code></pre>
 		</div>
 	</body>
 </html>

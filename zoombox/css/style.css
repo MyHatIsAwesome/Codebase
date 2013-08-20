@@ -3,10 +3,10 @@
 .thumbnail img { display:block; }
 .first { clear:left; }
 .zoomtrack { border:1px solid #ddd; background:rgba(255,255,255,0.1); border-radius:4px; }
-.zoombox { border:1px solid #888; box-shadow: #aaa 4px 2px 3px 0px; }
+.zoombox { border:1px solid #888; box-shadow: #aaa 4px 2px 3px 0px; position:absolute; }
 .caption { display:block; position:absolute; bottom:0; left:0; width:100%; text-align:center; line-height:20px; height:20px; background:rgba(0,0,0,0.5); color:#fff; font-size:16px; letter-spacing:2px; z-index:100;}
 .top { bottom:auto; top:0; }
-.loading { background-image: url('loading.gif'); background-position: center center; background-repeat:no-repeat; }
+.zoom-loading { background-image: url('../img/loading.gif'); background-position: center center; background-repeat:no-repeat; }
 label { margin-right:10px; line-height:40px; }
 input { line-height:30px; max-width:80px; }
 .setting { width:250px; margin:0px 5px 20px 5px; float:left; height:40px;  }
