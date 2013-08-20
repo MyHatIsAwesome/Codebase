@@ -8,7 +8,8 @@
 			$(document).ready(function(){
 				window.zoom = new $.ZoomBox({
 					thumb_class: "thumbnail",
-					container_class: "zoombox",
+					box_class: "zoombox",
+					image_container_class: "imagebox",
 					track_class: "zoomtrack",
 					container_width:  400,
 					container_height: 300,
@@ -104,7 +105,8 @@
 			.first { clear:left; }
 			.zoomtrack { border:1px solid #ddd; background:rgba(255,255,255,0.1); border-radius:4px; }
 			.zoombox { border:1px solid #888; box-shadow: #aaa 4px 2px 3px 0px; }
-			.caption { display:block; position:absolute; bottom:0; left:0; width:100%; text-align:center; line-height:20px; height:20px; background:rgba(0,0,0,0.5); color:#fff; font-size:16px; letter-spacing:2px; }
+			.caption { display:block; position:absolute; bottom:0; left:0; width:100%; text-align:center; line-height:20px; height:20px; background:rgba(0,0,0,0.5); color:#fff; font-size:16px; letter-spacing:2px; z-index:100;}
+			.top { bottom:auto; top:0; }
 			.loading { background-image: url('loading.gif'); background-position: center center; background-repeat:no-repeat; }
 			label { margin-right:10px; line-height:40px; }
 			input { line-height:30px; max-width:80px; }
@@ -147,5 +149,12 @@
 		<ul>
 			<li>Override the zoom level by adding the attribute <em>data-scale="3"</em> to a thumbnail</li>
 		</ul>
+
+
+		<div class="zoombox">
+			<span class='caption top'>Fixed Header</span>
+			<div class="imagebox"></div>
+			<span class='caption'>Fixed Footer</span>
+		</div>
 	</body>
 </html>
