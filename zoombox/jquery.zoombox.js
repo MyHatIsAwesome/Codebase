@@ -13,9 +13,10 @@ $.ZoomBox = function(options){
 	this.settings = $.extend(true, {}, $.ZoomBox.defaults, options)
 
 	// internal variables not to do with configuration
-	this.container = $("."+this.settings.container_class)
-	this.thumbnail = $([])
-	this.full_image = $([])
+	this.$container = $("."+this.settings.container_class)
+	this.$image = $([])
+	this.$thumbnail = $([])
+	this.$track = $([])
 	this.mouse_x = 0
 	this.mouse_y = 0
 	this.hover_timeout = 0
@@ -34,6 +35,7 @@ $.extend($.ZoomBox, {
 		// If the container does not already exist in the page, one will be created and appended to <body>
 		container_class: "zoom-container",
 
+		// class to apply to the image element within the zoom box for styling purposes
 		image_class: "zoom-image",
 
 		// The class that the thumbnail tracking rectangle has
@@ -105,26 +107,27 @@ $.extend($.ZoomBox, {
 		init:function(){
 			// check a container has been set otherwise create a container for
 			// the zoom and append it to the page body
-			if( this.container.length == 0 )
+			if( this.$container.length == 0 )
 			{
-				this.container = $("<div />")
+				this.$container = $("<div />")
 					.addClass(this.settings.container_class)
 					.hide()
 					.appendTo("body")
 			}
 
 			if( this.settings.fixed_container === null )
-				this.settings.fixed_container = this.container.length == 0
+				this.settings.fixed_container = this.$container.length == 0
 
 			// ensure overflow is hidden on the zoom container
-			this.container.css("overflow", "hidden")
+			this.$container.css("overflow", "hidden")
+			this.container = this.$container[0]
 
 			// ensure fixed containers are position relative
 			// and dynamically positioned containers are position absolute
 			if( this.settings.fixed_container )
-				this.container.css("position", "relative")
+				this.$container.css("position", "relative")
 			else
-				this.container.css("position", "absolute")
+				this.$container.css("position", "absolute")
 
 			this.refresh()
 			return this
@@ -134,19 +137,19 @@ $.extend($.ZoomBox, {
 		position_container:function(){
 			// ensure the container is the correct size in case it has been changed
 			// also don't let the container be larger than the image it contains
-			var full_w = this.full_image.width || Infinity
-			var full_h = this.full_image.height || Infinity
-			this.container.css({
+			var full_w = this.image.width || Infinity
+			var full_h = this.image.height || Infinity
+			this.$container.css({
 				"width": Math.min(this.settings.container_width, full_w)+"px",
 				"height": Math.min(this.settings.container_height, full_h)+"px",
 				"z-index": parseInt(this.settings.zindex) || 0
 			})
 
-			var cont_w = this.container.width(),
-				cont_h = this.container.height(),
-				thumb = this.thumbnail.offset() || {left:0,top:0},
-				thumb_w = this.thumbnail.width(),
-				thumb_h = this.thumbnail.height(),
+			var cont_w = this.$container.width(),
+				cont_h = this.$container.height(),
+				thumb = this.$thumbnail.offset() || {left:0,top:0},
+				thumb_w = this.$thumbnail.width(),
+				thumb_h = this.$thumbnail.height(),
 				scroll_x = $(document).scrollLeft(),
 				scroll_y = $(document).scrollTop(),
 				screen_w = $(window).width(),
@@ -197,7 +200,7 @@ $.extend($.ZoomBox, {
 				xy = clamp( xy[0], xy[1] )
 
 			// Finally, apply the position to the zoom container
-			this.container.css({
+			this.$container.css({
 				"left":xy[0],
 				"top":xy[1]
 			})
@@ -253,17 +256,17 @@ $.extend($.ZoomBox, {
 		},
 
 		position_image:function(){
-			var $full = $(this.full_image)
+			var $full = $(this.image)
 			if( ! $full.length )
 				return
 
 			// get the widths and heights of the thumbnail, full image and zoom container
-			var	thumb_w = this.thumbnail.width(),
-				thumb_h = this.thumbnail.height(),
+			var	thumb_w = this.$thumbnail.width(),
+				thumb_h = this.$thumbnail.height(),
 				full_w = $full.width(),
 				full_h = $full.height(),
-				cont_w = this.container.width(),
-				cont_h = this.container.height(),
+				cont_w = this.$container.width(),
+				cont_h = this.$container.height(),
 
 				// calculate the level of zoom of the image relative to the zoom container
 				zoom_x = full_w / cont_w,
@@ -286,7 +289,7 @@ $.extend($.ZoomBox, {
 			// display the track rectangle over the thumbnail
 			if( this.settings.show_track )
 			{
-				this.track.css({
+				this.$track.css({
 					"left": track_x,
 					"top": track_y,
 					"width": track_w,
@@ -300,8 +303,8 @@ $.extend($.ZoomBox, {
 
 
 			// ensure the container can contain absolute positioned children
-			if( ! this.container.css("position").match(/absolute|fixed|relative/) )
-				this.container.css("position", "relative")
+			if( ! this.$container.css("position").match(/absolute|fixed|relative/) )
+				this.$container.css("position", "relative")
 
 			// refresh the thumbnails
 			$("."+zoom.settings.thumb_class).each(function(){
@@ -329,45 +332,43 @@ $.extend($.ZoomBox, {
 				.off("mousemove.zoom")
 				.on("mouseenter.zoom", function(){
 
-					zoom.thumbnail = $(this)
-					zoom.track = $("."+zoom.settings.track_class, this)
+					zoom.$thumbnail = $(this)
+					zoom.thumbnail = this
+					zoom.$track = $("."+zoom.settings.track_class, this)
+					zoom.track = zoom.$track[0]
 
 					zoom.hover_timeout = setTimeout(function(){
 						// populate the popup container with the full sized image and display it
 						var full_src = $(this).attr(zoom.settings.src_attribute) || $(this).attr("src") || ""
 
+						// get rid of the current image
+						zoom.$image.remove()
+
 						// put container in loading state
-						zoom.container
-							.empty()
+						zoom.$container
 							.addClass(zoom.settings.loading_class)
 							.fadeIn({
 								duration: parseInt(zoom.settings.fade_in_time),
 								easing: zoom.settings.fade_easing
 							})
 
-						// show the tracking rectangle
-						if( zoom.settings.show_track )
-							zoom.track.fadeIn({
-								duration: parseInt(zoom.settings.fade_in_time),
-								easing: zoom.settings.fade_easing
-							})
-
 						// create full sized image
-						var $img = $("<img />")
+						zoom.$image = $("<img />")
 							.attr("src", full_src)
 							.css({
 								"position":"absolute",
 								"max-width":"initial"
 							})
+							.addClass( zoom.settings.image_class )
 							.fadeTo(0, 0)
 							.one("load", function(e){
-								if( zoom.full_image != this )
+								if( zoom.image != this )
 									return
 
 								// set the width + height of the image
-								var thumb_w = zoom.thumbnail.width(),
-									thumb_h = zoom.thumbnail.height(),
-									scale = parseFloat( zoom.thumbnail.attr(zoom.settings.scale_attribute) ) || this.width/thumb_w
+								var thumb_w = zoom.$thumbnail.width(),
+									thumb_h = zoom.$thumbnail.height(),
+									scale = parseFloat( zoom.$thumbnail.attr(zoom.settings.scale_attribute) ) || this.width/thumb_w
 								$(this).attr({
 									"width": Math.floor( thumb_w * scale ),
 									"height": Math.floor( thumb_h * scale )
@@ -377,32 +378,38 @@ $.extend($.ZoomBox, {
 								if( !zoom.settings.fixed_container )
 									zoom.position_container()
 
+								// show the tracking rectangle
+								if( zoom.settings.show_track )
+									zoom.$track.fadeIn({
+										duration: parseInt(zoom.settings.fade_in_time),
+										easing: zoom.settings.fade_easing
+									})
+
 								// call zoom start callback
-								zoom.settings.on_zoom_start.call(zoom, this, zoom.container)
+								zoom.settings.on_zoom_start.call(zoom, this, zoom.$container)
 
 								$(this).fadeTo(parseInt(zoom.settings.fade_in_time), 1, zoom.settings.fade_easing)
 
-								zoom.container
-									.empty()
-									.append($(this))
+								zoom.$container
+									.prepend($(this))
 									.removeClass(zoom.settings.loading_class)
 
 								zoom.position_image()
 							})
-							zoom.full_image = $img[0]
+							zoom.image = zoom.$image[0]
 
 					}.bind(this), zoom.settings.delay) // end timeout
 
 				})
 				.on( "mouseleave.zoom", function(){
 					clearTimeout(zoom.hover_timeout)
-					zoom.container.add(zoom.track).fadeOut({
+					zoom.$container.add(zoom.$track).fadeOut({
 						duration: parseInt(zoom.settings.fade_out_time),
 						easing: zoom.settings.fade_easing
 					})
 
 					// call zoom start callback
-					zoom.settings.on_zoom_end.call(zoom, this, zoom.container)
+					zoom.settings.on_zoom_end.call(zoom, this, zoom.$container)
 
 				})
 				.on( "mousemove.zoom", function(e){

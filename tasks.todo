@@ -4,7 +4,7 @@ ZoomBox:
   ✔ Allow changing the settings of a zoombox after instantiation @done (13-08-19 15:48)
   ✔ Allow user to override the level of zoom @done (13-08-19 16:49)
   ✔ Allow zoom override per thumbnail with a data attribute @done (13-08-19 16:54)
-  ☐ Separate image container and zoom container so users can add periferal elements around the image
+  ✔ Separate image container and zoom container so users can add periferal elements around the image @done (13-08-20 09:30)
   ☐ Allow zoombox to display image using a css background rather than an <img> element
   ☐ Allow mouse to enter zoom box without closing it
 
