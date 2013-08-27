@@ -1,0 +1,20 @@
+<html>
+	<head>
+		<title>Rectangle Packing</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script src="rp.js"></script>
+		<style>
+			body * { box-sizing:border-box; }
+			h1{ height:8%; margin:0; }
+			section { background:#eee; border:1px solid #999; position:relative; height:92%; margin:0; }
+			canvas { position:absolute; left:0; top:0; z-index:1; width:100%; height:100%; }
+			div { display:block; position:absolute; left:0; top:0; z-index:2; box-sizing:border-box;  }
+		</style>
+	</head>
+	<body>
+		<h1><button id="another">Another</button></h1>
+		<section>
+			<canvas id="canvas"></canvas>
+		</section>
+	</body>
+</html>
