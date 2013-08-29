@@ -1,23 +1,12 @@
 function Rect(x, y, w, h, col){
-	this.x = x
-	this.y = y
-	this.w = w
-	this.h = h
-
-	col = col || Rect.colours[Math.floor( Math.random()*Rect.colours.length )]
-	this.e = $("<div/>").css("background",col)
-	this.apply()
+	this.x = x || 0
+	this.y = y || 0
+	this.w = w || 100
+	this.h = h || 100
+	this.col = col || Rect.colours[Math.floor( Math.random()*Rect.colours.length )]
 }
-Rect.prototype.apply = function(){
-	this.e.css({
-		left:this.x+"px",
-		top:this.y+"px",
-		width:this.w+"px",
-		height:this.h+"px"
-	})
-
-	if( this.label )
-		this.e.text( this.label )
+Rect.prototype.clone = function(){
+	return new Rect(this.x, this.y, this.w, this.h)
 }
 Rect.colours = [ "#ffaaaa", "#aaffaa", "#aaaaff", "#aaffff", "#ffaaff", "#ffffaa" ]
 Rect.min_w = 50
